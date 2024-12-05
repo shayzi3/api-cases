@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+from typing import Generic, TypeVar
 from pydantic import BaseModel
 
 
@@ -13,6 +15,8 @@ class UserSchema(BaseModel):
      name: str
      email: str
      cash: int
+     created_at: datetime
+     is_verifed: bool
      inventory: list[ItemSchema | None]
      
      
@@ -28,3 +32,10 @@ class ItemSchema(BaseModel):
      id: int
      name: str
      price: int
+     
+     
+     
+S = TypeVar("S")
+     
+class AllSchemas(Generic[S]):
+     ...

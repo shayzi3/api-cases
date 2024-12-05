@@ -5,20 +5,20 @@ from abc import ABC, abstractmethod
 class Crud(ABC):
      
      @abstractmethod
-     def create(model, **extras):
+     def create(session, **extras):
           raise NotImplementedError()
      
      
      @abstractmethod
-     def read(model, **extras):
+     def read(session, **extras):
           raise NotImplementedError()
      
      
      @abstractmethod
-     def update(model, **extras):
+     def update(session, **extras):
           raise NotImplementedError()
      
      
      @abstractmethod
-     def delete(model, **extras):
+     def delete(session, **extras):
           raise NotImplementedError()

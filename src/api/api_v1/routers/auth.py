@@ -10,6 +10,8 @@ from .schema import (
      LoginUserSchema
 )
 from src.db.models import get_db_session
+from src.db.bases import ORMBaseUser
+
 
 
 auth_router = APIRouter(prefix='/api/v1/user', tags=['User'])

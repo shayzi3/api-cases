@@ -3,12 +3,14 @@ from .schema import(
      ResponseModel,
      UserSchema,
      CaseSchema,
-     ItemSchema
+     ItemSchema,
+     AllSchemas
 )
 
 __all__ = [
      "ResponseModel",
      "UserSchema",
      "CaseSchema",
-     "ItemSchema"
+     "ItemSchema",
+     "AllSchemas"
 ]
