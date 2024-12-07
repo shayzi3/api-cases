@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Generic, TypeVar
 from pydantic import BaseModel
 
 
@@ -12,7 +11,7 @@ class ResponseModel(BaseModel):
      
 class UserSchema(BaseModel):
      id: str
-     name: str
+     username: str
      email: str
      cash: int
      created_at: datetime
@@ -34,8 +33,17 @@ class ItemSchema(BaseModel):
      price: int
      
      
+class TokenSchema(BaseModel):
+     token: str
+     type: str
      
-S = TypeVar("S")
+     def __str__(self) -> str:
+          return f'{self.type.title()} {self.token}'
      
-class AllSchemas(Generic[S]):
-     ...
+     
+class TokenData(BaseModel):
+     id: str
+     email: str
+     is_verifed: bool
+     iat: datetime
+     exp: datetime

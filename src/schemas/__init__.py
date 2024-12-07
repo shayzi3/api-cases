@@ -4,7 +4,8 @@ from .schema import(
      UserSchema,
      CaseSchema,
      ItemSchema,
-     AllSchemas
+     TokenSchema,
+     TokenData
 )
 
 __all__ = [
@@ -12,5 +13,6 @@ __all__ = [
      "UserSchema",
      "CaseSchema",
      "ItemSchema",
-     "AllSchemas"
+     "TokenSchema",
+     "TokenData"
 ]

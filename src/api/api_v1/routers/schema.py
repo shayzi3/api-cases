@@ -1,10 +1,11 @@
 
+from datetime import datetime
 from pydantic import BaseModel, EmailStr
 from src.core import generate_id
 
 
 class RegisterUserSchema(BaseModel):
-     name: str
+     username: str
      password: str
      email: EmailStr
     
@@ -14,8 +15,8 @@ class RegisterUser(RegisterUserSchema):
      cash: int = 0
      low_chanse: float = 85.5
      high_chanse: float = 14.5
-     inventory: list = []
      is_verifed: bool = False
+     created_at: datetime = datetime.now()
      
      
 class LoginUserSchema(BaseModel):
