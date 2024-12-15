@@ -7,12 +7,21 @@ from .schema import(
      TokenSchema,
      TokenData
 )
-
+from .custom.schema_auth import (
+     RegisterUser,
+     RegisterUserSchema,
+     LoginUserSchema
+)
+from .custom.schema_verify import VerifyData
 __all__ = [
      "ResponseModel",
      "UserSchema",
      "CaseSchema",
      "ItemSchema",
      "TokenSchema",
-     "TokenData"
+     "TokenData",
+     "RegisterUser",
+     "RegisterUserSchema",
+     "LoginUserSchema",
+     "VerifyData"
 ]

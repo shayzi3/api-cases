@@ -19,6 +19,8 @@ class UserSchema(BaseModel):
      inventory: list[ItemSchema | None]
      
      
+     
+     
 class CaseSchema(BaseModel):
      id: int
      name: str
@@ -31,6 +33,8 @@ class ItemSchema(BaseModel):
      id: int
      name: str
      price: int
+     cases: list[CaseSchema | None]
+     users: list[UserSchema | None]
      
      
 class TokenSchema(BaseModel):
@@ -43,6 +47,7 @@ class TokenSchema(BaseModel):
      
 class TokenData(BaseModel):
      id: str
+     username: str
      email: str
      is_verifed: bool
      iat: datetime

@@ -1,41 +1,40 @@
 
-from typing import Sequence, Union, Any
+from typing import Sequence, Any, TypeVar, Generic
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import delete, select, insert, update
-from src.schemas import UserSchema, ItemSchema, CaseSchema
 
 
-Schemas = Union[UserSchema, ItemSchema, CaseSchema, list[Any]]
+ModelSchema = TypeVar("ModelSchema")
 
 
 class OrmRepository(ABC):
      
      @abstractmethod
-     def create(session, **extras):
+     def create(session, values, **extras):
           raise NotImplementedError
      
      
      @abstractmethod
-     def read(session, **extras):
+     def read(session, values, **extras):
           raise NotImplementedError
      
      
      @abstractmethod
-     def update(session, **extras):
+     def update(session, values, **extras):
           raise NotImplementedError
      
      
      @abstractmethod
-     def delete(session, **extras):
+     def delete(session, values, **extras):
           raise NotImplementedError
      
      
 
 
-class OrmBasedClassMixin(OrmRepository):
-     model: type = None
-     
+
+class OrmBasedClassMixin(Generic[ModelSchema], OrmRepository):
+     model: type | None = None
      
      @classmethod
      async def create(
@@ -43,7 +42,7 @@ class OrmBasedClassMixin(OrmRepository):
           session: AsyncSession, 
           values: Sequence[str | None] = (),
           **extras
-     ) -> Schemas:
+     ) -> ModelSchema | list[Any]:
           sttm = (
                insert(cls.model).
                values(**extras)
@@ -60,7 +59,7 @@ class OrmBasedClassMixin(OrmRepository):
           session: AsyncSession, 
           values: Sequence[str] | None = (),
           **extras
-     ) -> Schemas:
+     ) -> ModelSchema | list[Any]:
           sttm = select(cls.model).filter_by(**extras)
           result = await session.execute(sttm)
           output = result.scalar()

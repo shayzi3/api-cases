@@ -1,6 +1,6 @@
 
 from datetime import datetime
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from src.core import generate_id
 
 
@@ -8,7 +8,18 @@ class RegisterUserSchema(BaseModel):
      username: str
      password: str
      email: EmailStr
-    
+     
+     
+     @field_validator('email')
+     @classmethod
+     def validate_email(cls, email_str: str):
+          email_prefix = email_str.split('@')[-1]
+          
+          if email_prefix != 'mail.ru':
+               raise ValueError('Email must be mail.ru')
+          return email_str
+     
+     
      
 class RegisterUser(RegisterUserSchema):
      id: str = generate_id()

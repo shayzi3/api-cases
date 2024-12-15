@@ -51,12 +51,12 @@ class User(Base):
      def to_pydantic_model(model: User, *args) -> UserSchema | list[Any]:
           schema = UserSchema(
                id=model.id,
-               email=model.email,
                username=model.username,
+               email=model.email,
                cash=model.cash,
                created_at=model.created_at,
-               inventory=model.inventory,
-               is_verifed=model.is_verifed
+               is_verifed=model.is_verifed,
+               inventory=model.inventory
           )
           if args:
                return [schema.__dict__.get(key) for key in args]

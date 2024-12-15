@@ -7,6 +7,8 @@ class Settings(BaseSettings):
      postgres: str
      alg: str
      secret: str
+     email: str 
+     email_password: str
      
      model_config = SettingsConfigDict(env_file='src/.env')
      

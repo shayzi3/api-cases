@@ -8,9 +8,10 @@ from src.core import settings
 
 async def create_token(**kwargs) -> TokenSchema:
      data = {
-          'id': kwargs.get('id'),
-          'email': kwargs.get('email'),
-          'is_verifed': kwargs.get('is_verifed')
+          "id": kwargs.get("id"),
+          "username": kwargs.get("username"),
+          "email": kwargs.get("email"),
+          "is_verifed": kwargs.get("is_verifed")
      }
      
      data.update(

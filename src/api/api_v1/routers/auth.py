@@ -1,9 +1,9 @@
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 
-from src.schemas import UserSchema
-from .schema import (
+from src.schemas import (
+     UserSchema,
      RegisterUserSchema,
      RegisterUser,
      LoginUserSchema
@@ -18,10 +18,10 @@ from src.core import create_token, hashed_password
 auth_router = APIRouter(prefix='/api/v1/user', tags=['User'])
 
 
-@auth_router.post('/register', response_model=TokenSchema)
-async def register(
+@auth_router.post('/signup', response_model=TokenSchema)
+async def signup(
      data: RegisterUserSchema,
-     session: Annotated[AsyncSession, Depends(get_db_session)]
+     session: Annotated[AsyncSession, Depends(get_db_session)],
 ) -> TokenSchema:
      userdata = RegisterUser(**data.__dict__)
      
@@ -35,7 +35,6 @@ async def register(
                detail=f'User with nickname {userdata.username} already exists'
           )
      userdata.password = await hashed_password(userdata.password)
-     
      await user_orm.create(
           session=session,
           **userdata.__dict__
@@ -44,12 +43,13 @@ async def register(
      
      
      
-@auth_router.post('/auth', response_model=TokenSchema)
-async def auth(
+@auth_router.post('/login', response_model=TokenSchema)
+async def login(
      data: LoginUserSchema
 
 ) -> TokenSchema:
      return
+     
      
 
 @auth_router.get('/', response_model=UserSchema)
