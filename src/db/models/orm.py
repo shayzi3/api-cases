@@ -16,17 +16,17 @@ class OrmRepository(ABC):
      
      
      @abstractmethod
-     def read(session, values, **extras):
+     def read(session, values, where, **extras):
           raise NotImplementedError
      
      
      @abstractmethod
-     def update(session, values, **extras):
+     def update(session, values, where, **extras):
           raise NotImplementedError
      
      
      @abstractmethod
-     def delete(session, values, **extras):
+     def delete(session, values, where, **extras):
           raise NotImplementedError
      
      
@@ -60,6 +60,17 @@ class OrmBasedClassMixin(Generic[ModelSchema], OrmRepository):
           values: Sequence[str] | None = (),
           **extras
      ) -> ModelSchema | list[Any]:
+          """Read, get data from db
+
+          Args:
+              session (AsyncSession): AsyncSession
+              values (Sequence[str] | None, optional): Arguments which must be returns. Default - ()
+              **extras - where values
+
+          Returns:
+              ModelSchema | list[Any]
+          """
+          
           sttm = select(cls.model).filter_by(**extras)
           result = await session.execute(sttm)
           output = result.scalar()
@@ -70,10 +81,22 @@ class OrmBasedClassMixin(Generic[ModelSchema], OrmRepository):
      
      
      @classmethod
-     async def update(cls, session: AsyncSession, **extras):
-          return
+     async def update(
+          cls, 
+          session: AsyncSession, 
+          where: dict[str, Any],
+          **extras
+     ) -> None:
+          sttm = update(cls.model).filter_by(**where).values(**extras)
+          await session.execute(sttm)
+          await session.commit()
      
      
      @classmethod
-     async def delete(cls, session: AsyncSession, **extras):
+     async def delete(
+          cls, 
+          session: AsyncSession, 
+          where: dict[str, Any],
+          **extras
+     ) -> Any:
           return

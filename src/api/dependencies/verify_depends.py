@@ -1,32 +1,37 @@
 
-from fastapi import status
+from typing import Annotated
+from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import status, Body, Depends, HTTPException
 from src.core import verify_token
-from src.schemas import ResponseModel, TokenData, VerifyData
+from src.db.models import get_db_session
+from src.db.base import user_orm
+from src.schemas import TokenData
 
 
 
 
 async def check_verifed(
-     verify_data: VerifyData
-) -> TokenData | VerifyData:
-     """Функция проверяет валидность токена и верифицикацию пользователя.
-     
-     Args:
-          verify_data - pydantic model: 
-               token: str
-               code: int | None
-     
-     Returns:
-          Если code не был передан значит использовали эндпоинт /send -> TokenData
-          Если code был передан значит использовали эндпоинт /verify -> VerifyData
+     token: Annotated[str, Body(embed=True)],
+     session: Annotated[AsyncSession, Depends(get_db_session)]
+) -> TokenData:
      """
-     token_data = await verify_token(verify_data.token)
 
-     if token_data.is_verifed is True:
-          return ResponseModel(
-               response="Account already verified",
-               status=status.HTTP_400_BAD_REQUEST
+     Args:
+         session (Annotated[AsyncSession, Depends): _description_
+         token (Annotated[str, Body, optional): _description_. Defaults to True)].
+
+     Returns:
+         TokenData | VerifyData: _description_
+     """
+     data = await verify_token(token)
+
+     already_verifed = await user_orm.read(
+          session=session,
+          id=data.id
+     )
+     if already_verifed.is_verifed is True:
+          raise HTTPException(
+               detail="User already verifed!",
+               status_code=status.HTTP_400_BAD_REQUEST
           )
-     if verify_data.code == 0:
-          return token_data
-     return verify_data
+     return data
