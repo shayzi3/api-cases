@@ -59,7 +59,7 @@ class User(Base):
                inventory=model.inventory
           )
           if args:
-               return [schema.__dict__.get(key) for key in args]
+               return [model.__dict__.get(key) for key in args]
           return schema
                
      

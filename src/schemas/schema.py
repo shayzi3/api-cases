@@ -42,7 +42,7 @@ class TokenSchema(BaseModel):
      type: str
      
      def __str__(self) -> str:
-          return f'{self.type.title()} {self.token}'
+          return self.token
      
      
 class TokenData(BaseModel):

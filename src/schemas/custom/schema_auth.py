@@ -1,7 +1,7 @@
 
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, field_validator
-from src.core import generate_id
+from src.core import generate_id, hashed_password
 
 
 class RegisterUserSchema(BaseModel):
@@ -10,13 +10,13 @@ class RegisterUserSchema(BaseModel):
      email: EmailStr
      
      
-     @field_validator('email')
+     @field_validator("email")
      @classmethod
      def validate_email(cls, email_str: str):
-          email_prefix = email_str.split('@')[-1]
+          email_prefix = email_str.split("@")[-1]
           
-          if email_prefix != 'mail.ru':
-               raise ValueError('Email must be mail.ru')
+          if email_prefix != "mail.ru":
+               raise ValueError("Email must be mail.ru")
           return email_str
      
      
@@ -29,7 +29,12 @@ class RegisterUser(RegisterUserSchema):
      is_verifed: bool = False
      created_at: datetime = datetime.now()
      
+     @field_validator("password")
+     @classmethod
+     def password_hash(cls, psw: str):
+          return hashed_password(psw)
+     
      
 class LoginUserSchema(BaseModel):
-     email: str
+     username: str
      password: str

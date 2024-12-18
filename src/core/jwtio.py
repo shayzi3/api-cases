@@ -16,7 +16,7 @@ async def create_token(**kwargs) -> TokenSchema:
      
      data.update(
           {
-               'exp': datetime.utcnow() + timedelta(minutes=10),
+               'exp': datetime.utcnow() + timedelta(minutes=60),
                'iat': datetime.utcnow()
           }
      )

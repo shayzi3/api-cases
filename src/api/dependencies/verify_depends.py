@@ -14,17 +14,18 @@ async def check_verifed(
      token: Annotated[str, Body(embed=True)],
      session: Annotated[AsyncSession, Depends(get_db_session)]
 ) -> TokenData:
-     """
+     """Function check the validity of the token. 
+     Also check for re-verification
 
      Args:
-         session (Annotated[AsyncSession, Depends): _description_
-         token (Annotated[str, Body, optional): _description_. Defaults to True)].
+         session (Annotated[AsyncSession, Depends): AsyncSession
+         token (Annotated[str, Body, optional): jwt token
 
      Returns:
-         TokenData | VerifyData: _description_
+         TokenData
      """
      data = await verify_token(token)
-
+     
      already_verifed = await user_orm.read(
           session=session,
           id=data.id
