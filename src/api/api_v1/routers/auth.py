@@ -27,6 +27,7 @@ from src.core import create_token, verify_password
 auth_router = APIRouter(prefix="/api/v1/user", tags=["User"])
 
 
+
 @auth_router.post("/signup", response_model=TokenSchema)
 async def signup(
      data: RegisterUserSchema,
@@ -65,7 +66,7 @@ async def login(
 ) -> TokenSchema:
      user_not_exists: list[Any] = await user_orm.read(
           session=session,
-          values=('password', ),
+          values=("password", "id", "username", "email", "is_verifed"),
           username=data.username
      )
      if user_not_exists is None:
@@ -79,10 +80,10 @@ async def login(
      )
      if psw is False:
           raise HTTPException(
-               response="Invalid username or password!",
+               detail="Invalid username or password!",
                status_code=status.HTTP_403_FORBIDDEN
           )
-     token = await create_token(**user_not_exists.__dict__)
+     token = await create_token(*user_not_exists[1:])
      response.set_cookie(
           key="access_token",
           value=token,

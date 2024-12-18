@@ -6,14 +6,19 @@ from src.schemas import TokenSchema, TokenData
 from src.core import settings
 
 
-async def create_token(**kwargs) -> TokenSchema:
+async def create_token(*args, **kwargs) -> TokenSchema:
+     if args:
+          kwargs["id"] = args[0]
+          kwargs["username"] = args[1]
+          kwargs["email"] = args[2]
+          kwargs["is_verifed"] = args[3]
+          
      data = {
           "id": kwargs.get("id"),
           "username": kwargs.get("username"),
           "email": kwargs.get("email"),
           "is_verifed": kwargs.get("is_verifed")
      }
-     
      data.update(
           {
                'exp': datetime.utcnow() + timedelta(minutes=60),
