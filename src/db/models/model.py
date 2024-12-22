@@ -37,6 +37,7 @@ class User(Base):
      high_chanse: Mapped[float] = mapped_column(nullable=False)
      created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
      is_verifed: Mapped[bool] = mapped_column(nullable=False)
+     is_admin: Mapped[bool] = mapped_column()
      
      inventory: Mapped[list[Item]] = relationship(
          back_populates='item_users',
@@ -45,7 +46,6 @@ class User(Base):
          secondary=assotiation,
          overlaps='item_users'
      )
-     
      
      @staticmethod
      def to_pydantic_model(model: User, *args) -> UserSchema | list[Any]:
@@ -56,6 +56,7 @@ class User(Base):
                cash=model.cash,
                created_at=model.created_at,
                is_verifed=model.is_verifed,
+               is_admin=model.is_admin,
                inventory=model.inventory
           )
           if args:
@@ -81,6 +82,19 @@ class Case(Base):
           overlaps='inventory'
      )
      
+     @staticmethod
+     def to_pydantic_model(model: Case, *args: str) -> CaseSchema | list[Any]:
+          schema = CaseSchema(
+               id=model.id,
+               name=model.name,
+               price=model.price,
+               image=model.image,
+               items=model.case_items
+          )
+          if args:
+               return [model.__dict__.get(key) for key in args]
+          return schema
+     
      
      
 class Item(Base):
@@ -105,3 +119,17 @@ class Item(Base):
           secondary=assotiation,
           overlaps='inventory,item_users'
      )
+     
+     @staticmethod
+     def to_pydantic_model(model: Item, *args: str) -> ItemSchema | list[Any]:
+          schema = ItemSchema(
+               id=model.id,
+               name=model.name,
+               price=model.price,
+               quality=model.quality,
+               cases=model.item_cases,
+               users=model.item_users
+          )
+          if args:
+               return [model.__dict__.get(key) for key in args]
+          return schema

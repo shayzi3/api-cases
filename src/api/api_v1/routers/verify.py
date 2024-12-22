@@ -1,6 +1,4 @@
-
 from typing import Annotated
-from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import (
      APIRouter, 
      BackgroundTasks, 
@@ -14,15 +12,14 @@ from src.services import (
      send_verification_code,
      check_verification_code
 )
-from src.db.base import user_orm
-from src.db.models import get_db_session
+from src.db.bases import UserRepository
 from src.api.dependencies import check_verifed
 
 
 verify_router = APIRouter(prefix="/api/v1/verify", tags=["Verify"])
 
 
-@verify_router.post('/send', response_model=ResponseModel, description="Without code")
+@verify_router.post('/send', response_model=ResponseModel)
 async def send_verify_code(
      data: Annotated[TokenData, Depends(check_verifed)],
      background_task: BackgroundTasks
@@ -40,11 +37,10 @@ async def send_verify_code(
 
 
 
-@verify_router.post('/check', response_model=ResponseModel, description="With code")
+@verify_router.post('/check', response_model=ResponseModel)
 async def check_verify_code(
      data: Annotated[TokenData, Depends(check_verifed)],
      code: Annotated[int, Body(embed=True)],
-     session: Annotated[AsyncSession, Depends(get_db_session)]
 ) -> ResponseModel:
      result = await check_verification_code(
           user_id=data.id,
@@ -55,8 +51,7 @@ async def check_verify_code(
                detail="Invalid code!",
                status_code=status.HTTP_400_BAD_REQUEST
           )
-     await user_orm.update(
-          session=session,
+     await UserRepository().update(
           where={"id": data.id},
           is_verifed=True
      )

@@ -1,13 +1,10 @@
 
 from .model import User, Case, Item
-from .session import get_db_session
-from .orm import OrmBasedClassMixin
-
+from .session import Session
 
 __all__ = [
      "User",
      "Case",
      "Item",
-     "get_db_session",
-     "OrmBasedClassMixin"
+     "Session"
 ]

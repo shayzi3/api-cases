@@ -5,7 +5,8 @@ from fastapi import FastAPI, status
 from src.schemas import ResponseModel
 from src.api.api_v1.routers import (
      auth_router,
-     verify_router
+     verify_router,
+     items_router
 )
 
 
@@ -14,6 +15,7 @@ app = FastAPI(
 )
 app.include_router(auth_router)
 app.include_router(verify_router)
+app.include_router(items_router)
 
 
 @app.get('/', response_model=ResponseModel)
