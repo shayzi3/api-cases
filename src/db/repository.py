@@ -1,4 +1,3 @@
-
 from typing import Sequence, Any, TypeVar, Generic
 from abc import ABC, abstractmethod
 from sqlalchemy import delete, select, insert, update
@@ -56,7 +55,7 @@ class ORMRepository(Generic[ModelSchema], Repository, Session):
           self, 
           values: Sequence[str] | None = (),
           **extras
-     ) -> ModelSchema | list[Any]:
+     ) -> ModelSchema | list[Any] | None:
           """Read, get data from db
 
           Args:
@@ -85,7 +84,6 @@ class ORMRepository(Generic[ModelSchema], Repository, Session):
           async with self.session.begin() as session:
                sttm = update(self.model).filter_by(**where).values(**extras)
                await session.execute(sttm)
-               await session.commit()
      
      
      async def delete(

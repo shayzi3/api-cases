@@ -1,9 +1,8 @@
 
 
-from .send_email import send_verification_code, check_verification_code
+from .send_email import Email
 
 
 __all__ = [
-     "send_verification_code",
-     "check_verification_code"
+     "Email"
 ]

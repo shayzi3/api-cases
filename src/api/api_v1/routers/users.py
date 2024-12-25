@@ -16,11 +16,11 @@ from src.schemas import (
      ResponseModel,
      TokenData
 )
-from src.core import (
-     create_token, 
+from src.core.security import (
      verify_password, 
-     get_by_username_id
+     create_token
 )
+from src.api.utils import get_by_id_username
 from src.db.bases import UserRepository
 from src.schemas import TokenSchema
 from src.api.dependencies import request_user_token
@@ -110,7 +110,7 @@ async def get_user(
      user_id: str = Query(default=None),
      username: str = Query(default=None),
 ) -> UserSchema:
-     get_by = await get_by_username_id(
+     get_by = await get_by_id_username(
           request_user_id=request_user.id,
           id=user_id,
           username=username

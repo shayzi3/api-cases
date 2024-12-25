@@ -1,7 +1,7 @@
 
 from typing import Annotated
 from fastapi import status, Body, HTTPException
-from src.core import verify_token
+from src.core.security import verify_token
 from src.schemas import TokenData
 from src.db.bases import UserRepository
 

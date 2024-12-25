@@ -2,7 +2,8 @@ from datetime import datetime
 from pydantic import BaseModel, field_validator, EmailStr
 from src.schemas.schema import ItemSchemaForUserCase
 
-from src.core import generate_id, hashed_password
+from src.core import generate_id
+from src.core.security import hashed_password
 
 
 

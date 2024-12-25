@@ -1,7 +1,7 @@
 
 
 
-async def get_by_username_id(
+async def get_by_id_username(
      request_user_id: str,
      id: str | None = None,
      username: str | None = None,
