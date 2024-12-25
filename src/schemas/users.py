@@ -1,3 +1,5 @@
+import json
+
 from datetime import datetime
 from pydantic import BaseModel, field_validator, EmailStr
 from src.schemas.schema import ItemSchemaForUserCase
@@ -19,6 +21,17 @@ class UserSchema(BaseModel):
      inventory: list[ItemSchemaForUserCase]
      
      
+     def convert_to_redis(self) -> str:
+          self.created_at = self.created_at.timestamp() # json cant convert datetime type
+          return json.dumps(self.__dict__)
+     
+     @staticmethod
+     def convert_from_redis(data: str) -> "UserSchema":
+          data: dict = json.loads(data)
+          data["created_at"] = datetime.utcfromtimestamp(data["created_at"])
+          
+          return UserSchema(**data)
+
      
 class RegisterUserSchema(BaseModel):
      username: str
@@ -50,7 +63,6 @@ class RegisterUser(RegisterUserSchema):
      @classmethod
      def password_hash(cls, psw: str):
           return hashed_password(psw)
-     
      
 class LoginUserSchema(BaseModel):
      username: str

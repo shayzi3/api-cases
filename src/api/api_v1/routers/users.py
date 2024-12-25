@@ -24,6 +24,7 @@ from src.api.utils import get_by_id_username
 from src.db.bases import UserRepository
 from src.schemas import TokenSchema
 from src.api.dependencies import request_user_token
+from src.services.redis import RedisPool
 
 
 
@@ -102,7 +103,7 @@ async def out(
           status=status.HTTP_200_OK
      )
      
-     
+   
 
 @auth_router.get("/", response_model=UserSchema)
 async def get_user(
@@ -115,11 +116,21 @@ async def get_user(
           id=user_id,
           username=username
      )
+     cached_user: str = await RedisPool().get(list(get_by.values())[0])
+     if cached_user:
+          return UserSchema.convert_from_redis(cached_user)
+     
      get_user = await UserRepository().read(**get_by)
      if get_user is None:
           raise HTTPException(
                detail="User not found!",
                status_code=status.HTTP_404_NOT_FOUND
           )
+          
+     await RedisPool().set(
+          name=list(get_by.values())[0],
+          value=get_user.copy().convert_to_redis(),
+          ex=100
+     )
      return get_user
      

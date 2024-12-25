@@ -6,11 +6,9 @@ async def get_by_id_username(
      id: str | None = None,
      username: str | None = None,
 ) -> dict[str, str]:
-     get_by = {"id": id}
-     if id is None:
-          get_by = {"username": username}
+     get_by = {"username": username} if username else {"id": id}
      
-     if username is None:
+     if (id is None) and (username is None):
           get_by = {"id": request_user_id}
      return get_by
 
