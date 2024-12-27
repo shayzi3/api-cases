@@ -5,12 +5,14 @@ from fastapi import (
      status,
      Body,
      Depends,
-     HTTPException
+     HTTPException,
+     Response
 )
 from src.schemas import ResponseModel, TokenData
 from src.services import Email
 from src.db.bases import UserRepository
 from src.api.dependencies import check_verifed
+from src.core.security import create_token
 
 
 verify_router = APIRouter(prefix="/api/v1/verify", tags=["Verify"])
@@ -22,7 +24,7 @@ async def send_verify_code(
      background_task: BackgroundTasks
 ) -> ResponseModel:
      already_send = await Email.user_already_send(data.id)
-     if already_send is False:
+     if already_send is True:
           raise HTTPException(
                detail="You already send code! Wait 3 minutes",
                status_code=status.HTTP_408_REQUEST_TIMEOUT
@@ -45,6 +47,7 @@ async def send_verify_code(
 async def check_verify_code(
      data: Annotated[TokenData, Depends(check_verifed)],
      code: Annotated[str, Body(embed=True)],
+     response: Response
 ) -> ResponseModel:
      result = await Email.check_verification_code(
           user_id=data.id,
@@ -58,6 +61,11 @@ async def check_verify_code(
      await UserRepository().update(
           where={"id": data.id},
           is_verifed=True
+     )
+     
+     response.set_cookie(
+          key="access_token",
+          value=await create_token(**data.verify())
      )
      return ResponseModel(
           response="Account verified.",

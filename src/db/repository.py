@@ -37,7 +37,7 @@ class ORMRepository(Generic[ModelSchema], Repository, Session):
      
      async def create(
           self, 
-          values: Sequence[str | None] = (),
+          values: Sequence[str] = (),
           **extras
      ) -> ModelSchema | list[Any]:
           async with self.session.begin() as session:
@@ -53,7 +53,7 @@ class ORMRepository(Generic[ModelSchema], Repository, Session):
      
      async def read(
           self, 
-          values: Sequence[str] | None = (),
+          values: Sequence[str] = (),
           **extras
      ) -> ModelSchema | list[Any] | None:
           """Read, get data from db

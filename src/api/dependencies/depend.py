@@ -6,8 +6,7 @@ from src.core.security import verify_token
 
 
 async def request_user_token(request: Request) -> TokenData:
-     user = await verify_token(request.cookies.get("access_token"))
-     return user
+     return await verify_token(request.cookies.get("access_token"))
 
 
 async def req_user_is_admin(request: Request) -> TokenData:

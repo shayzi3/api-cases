@@ -1,3 +1,4 @@
+from typing import Any
 from datetime import datetime
 from pydantic import BaseModel
 
@@ -31,3 +32,8 @@ class TokenData(BaseModel):
      is_admin: bool
      iat: datetime
      exp: datetime
+     
+     
+     def verify(self) -> dict[str, Any]:
+          self.is_verifed = True
+          return self.__dict__

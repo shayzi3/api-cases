@@ -14,10 +14,9 @@ class Email:
      
      @classmethod
      async def user_already_send(cls, user_id: str) -> bool:
-          # True - user not in redis
-          # False- user in redis
-          already = await cls.redis.get(user_id)
-          return already is None
+          # True - user in redis
+          # False - user not in redis
+          return await cls.redis.exists(f"code:{user_id}") == 1
      
      
      @classmethod
@@ -34,15 +33,15 @@ class Email:
                     server.sendmail(settings.email, email, msg.as_string())
                     logger.info(f"[MAIL INFO] send for {user_id}-{name} {(email)}")
                     
-                    await cls.redis.set(name=user_id, value=code, ex=180)
+                    await cls.redis.set(name=f"code:{user_id}", value=code, ex=180)
           
           except Exception as ex:
                logger.error(f"[MAIL ERROR] {user_id}-{name} {(email, ex)}")
                
                
      @classmethod
-     async def check_verification_code(cls, user_id: int, code: int) -> bool:
-          value: str = await cls.redis.get(user_id)
+     async def check_verification_code(cls, user_id: str, code: str) -> bool:
+          value: bytes = await cls.redis.get(f"code:{user_id}")
           return value.decode() == code
      
      

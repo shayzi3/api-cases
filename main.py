@@ -21,7 +21,7 @@ app.include_router(items_router)
 @app.get('/', response_model=ResponseModel)
 async def root() -> ResponseModel:
      return ResponseModel(
-          response='Hello!', 
+          response='Ok', 
           status=status.HTTP_200_OK
      )
 

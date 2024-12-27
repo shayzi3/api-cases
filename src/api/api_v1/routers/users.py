@@ -130,7 +130,7 @@ async def get_user(
      await RedisPool().set(
           name=list(get_by.values())[0],
           value=get_user.copy().convert_to_redis(),
-          ex=100
+          ex=200
      )
      return get_user
      
