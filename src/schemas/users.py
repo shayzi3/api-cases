@@ -66,6 +66,7 @@ class RegisterUser(RegisterUserSchema):
      def password_hash(cls, psw: str):
           return hashed_password(psw)
      
+     
 class LoginUserSchema(BaseModel):
      username: str
      password: str

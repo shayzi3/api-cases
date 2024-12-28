@@ -1,3 +1,5 @@
+import json
+
 from typing import Any, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -41,6 +43,17 @@ class ItemBodyID(ItemBody):
      id: str = generate_id()
      
      
+     
 class ItemSchema(ItemSchemaForUserCase):
      cases: list[CaseSchema]
      users: list[UserSchema]
+     
+     
+     def convert_to_redis(self) -> str:
+          return json.dumps(self.__dict__)
+     
+     
+     @staticmethod
+     def convert_from_redis(data: str) -> "ItemSchema":
+          new_data: dict = json.loads(data)
+          return ItemSchema(**new_data)

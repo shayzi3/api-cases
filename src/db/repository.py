@@ -1,7 +1,10 @@
 from typing import Sequence, Any, TypeVar, Generic
 from abc import ABC, abstractmethod
 from sqlalchemy import delete, select, insert, update
+
 from src.db.models import Session
+from src.services.redis import RedisPool
+
 
 
 ModelSchema = TypeVar("ModelSchema")
@@ -20,12 +23,12 @@ class Repository(ABC):
      
      
      @abstractmethod
-     async def update(where, **extras):
+     async def update(redis_value, where, **extras):
           raise NotImplementedError
      
      
      @abstractmethod
-     async def delete(where, **extras):
+     async def delete(redis_value, where, **extras):
           raise NotImplementedError
      
      
@@ -79,16 +82,21 @@ class ORMRepository(Generic[ModelSchema], Repository, Session):
      async def update(
           self, 
           where: dict[str, Any],
+          redis_value: list[str] = [],
           **extras
      ) -> None:
           async with self.session.begin() as session:
                sttm = update(self.model).filter_by(**where).values(**extras)
                await session.execute(sttm)
+               
+          if redis_value:
+               await RedisPool().delete(*redis_value)
      
      
      async def delete(
           self, 
           where: dict[str, Any],
+          redis_value: str,
           **extras
      ) -> None:
           return
