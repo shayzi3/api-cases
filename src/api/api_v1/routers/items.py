@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import (
      APIRouter,
+     Body,
      Depends,
      HTTPException,
      status,
@@ -11,7 +12,8 @@ from src.schemas import (
      ItemSchema,
      ResponseModel,
      ItemBody,
-     ItemBodyID
+     ItemBodyID,
+     ItemBodyNullable
 )
 from src.api.dependencies import (
      request_user_token,
@@ -63,10 +65,24 @@ async def create_item(
      return item_data
      
 
+
 @items_router.patch(path='/', response_model=ResponseModel, tags=["Admin"])
 async def change_item(
      _: Annotated[TokenData, Depends(req_user_is_admin)],
-     item_id: int,
-     item: ItemBody
+     item_id: str,
+     item: ItemBodyNullable
 ) -> ResponseModel:
-     ...
+     item_exists = await ItemRepository().read(id=item_id)
+     if item_exists is None:
+          raise HTTPException(
+               status_code=status.HTTP_404_NOT_FOUND, 
+               detail="Item not found!"
+          )
+     await ItemRepository().update(
+          where={"id": item_id},
+          **item.not_nullable
+     )
+     return ResponseModel(
+          response="Item updated!",
+          status=status.HTTP_200_OK
+     )

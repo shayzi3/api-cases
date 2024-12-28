@@ -15,7 +15,8 @@ from .verify import VerifyData
 from .items import (
      ItemBody,
      ItemBodyID,
-     ItemSchema
+     ItemSchema,
+     ItemBodyNullable
 )
 from .enums import Quality
 
@@ -34,5 +35,6 @@ __all__ = [
      "ItemSchemaForUserCase",
      "ItemBody",
      "ItemBodyID",
-     "Quality"
+     "Quality",
+     "ItemBodyNullable"
 ]

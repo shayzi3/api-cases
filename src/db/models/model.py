@@ -37,7 +37,8 @@ class User(Base):
      high_chanse: Mapped[float] = mapped_column(nullable=False)
      created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
      is_verifed: Mapped[bool] = mapped_column(nullable=False)
-     is_admin: Mapped[bool] = mapped_column()
+     is_admin: Mapped[bool] = mapped_column(nullable=False)
+     avatar: Mapped[str] = mapped_column(nullable=True)
      
      inventory: Mapped[list[Item]] = relationship(
          back_populates='item_users',
@@ -57,7 +58,8 @@ class User(Base):
                created_at=model.created_at,
                is_verifed=model.is_verifed,
                is_admin=model.is_admin,
-               inventory=model.inventory
+               inventory=model.inventory,
+               avatar=model.avatar
           )
           if args:
                return [model.__dict__.get(key) for key in args]

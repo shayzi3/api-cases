@@ -6,7 +6,8 @@ from fastapi import (
      HTTPException,
      Query, 
      status, 
-     Response, 
+     Response,
+     UploadFile
 )
 from src.schemas import (
      UserSchema,
@@ -20,7 +21,7 @@ from src.core.security import (
      verify_password, 
      create_token
 )
-from src.api.utils import get_by_id_username
+from src.api.utils import get_by_id_username, valide_file
 from src.db.bases import UserRepository
 from src.schemas import TokenSchema
 from src.api.dependencies import request_user_token
@@ -116,7 +117,8 @@ async def get_user(
           id=user_id,
           username=username
      )
-     cached_user: str = await RedisPool().get(list(get_by.values())[0])
+     value = f"user:{list(get_by.values())[0]}"
+     cached_user: str = await RedisPool().get(value)
      if cached_user:
           return UserSchema.convert_from_redis(cached_user)
      
@@ -126,11 +128,23 @@ async def get_user(
                detail="User not found!",
                status_code=status.HTTP_404_NOT_FOUND
           )
-          
      await RedisPool().set(
-          name=list(get_by.values())[0],
+          name=value,
           value=get_user.copy().convert_to_redis(),
-          ex=200
+          ex=110
      )
      return get_user
+
+
+
+@auth_router.patch("/avatar", response_model=ResponseModel)
+async def upload_avatar(
+     request_user: Annotated[TokenData, Depends(request_user_token)],
+     avatar: Annotated[UploadFile, Depends(valide_file)]
+) -> ResponseModel:
      
+     # send to s3, get url to avatar, save in db
+     return ResponseModel(
+          response="Avatar Uploaded", 
+          status=status.HTTP_200_OK
+     )

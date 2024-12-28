@@ -19,6 +19,7 @@ class UserSchema(BaseModel):
      is_verifed: bool
      is_admin: bool
      inventory: list[ItemSchemaForUserCase]
+     avatar: str | None = None
      
      
      def convert_to_redis(self) -> str:
@@ -58,6 +59,7 @@ class RegisterUser(RegisterUserSchema):
      is_verifed: bool = False
      is_admin: bool = False
      created_at: datetime = datetime.now()
+     avatar: str | None = None
      
      @field_validator("password")
      @classmethod
