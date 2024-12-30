@@ -18,7 +18,7 @@ from src.api.dependencies import (
      request_user_token,
      req_user_is_admin
 )
-from src.api.utils import get_by_id_name
+from src.api.utils import ItemsGetBy
 from src.db.bases import ItemRepository
 from src.services.redis import RedisPool
 
@@ -33,21 +33,20 @@ async def get_item(
      item_id: str = Query(default=None),
      item_name: str = Query(default=None),
 ) -> ItemSchema:
-     get_by = await get_by_id_name(item_id, item_name) # -> {id: 123}
+     get_by = ItemsGetBy().get_by(item_id, item_name)
      
-     value = f"item:{list(get_by.values())[0]}" # -> item:123
-     cached_item = await RedisPool().get(value)
+     cached_item = await RedisPool().get(get_by.data_value)
      if cached_item is not None:
           return ItemSchema.convert_from_redis(cached_item)
      
-     item = await ItemRepository().read(**get_by)
+     item = await ItemRepository().read(**get_by.data)
      if item is None:
           raise HTTPException(
                detail="Item not found!",
                status_code=status.HTTP_404_NOT_FOUND
           )
      await RedisPool().set(
-          name=value,
+          name=get_by.data_value,
           value=item.copy().convert_to_redis(),
           ex=110
      )

@@ -1,9 +1,9 @@
-from .items import get_by_id_name
-from .users import get_by_id_username, valide_file
+from .items import ItemsGetBy
+from .users import UsersGetBy, valide_file
 
 
 __all__ = [
-     "get_by_id_name",
-     "get_by_id_username",
-     "valide_file"
+     "valide_file",
+     "ItemsGetBy",
+     "UsersGetBy"
 ]

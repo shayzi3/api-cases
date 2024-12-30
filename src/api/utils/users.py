@@ -1,16 +1,41 @@
-from fastapi import UploadFile, HTTPException, status, File
+from typing_extensions import Self, Any
+from fastapi import UploadFile, HTTPException, status
 
 
-async def get_by_id_username(
-     request_user_id: str,
-     id: str | None = None,
-     username: str | None = None,
-) -> dict[str, str]:
-     get_by = {"username": username} if username else {"id": id}
+
+
+class UsersGetBy:
+     __slots__ = ("__data",)
      
-     if (id is None) and (username is None):
-          get_by = {"id": request_user_id}
-     return get_by
+     def __init__(self):
+          self.__data = {}
+          
+     
+     def get_by(
+          self,
+          request_user_id: str,
+          id: str | None = None,
+          username: str | None = None,
+     ) -> Self:
+          self.__data = {"username": username} if username else {"id": id}
+          
+          if (id is None) and (username is None):
+               self.__data = {"id": request_user_id}
+          return self
+     
+     
+     @property 
+     def data_value(self) -> str | None:
+          """{id: 123} -> user:123"""
+          
+          if self.__data:
+               return f"user:{list(self.__data.values())[0]}"
+          
+          
+     @property
+     def data(self) -> dict[str, Any]:
+          return self.__data
+
 
 
 async def valide_file(file: UploadFile) -> UploadFile:
@@ -20,5 +45,3 @@ async def valide_file(file: UploadFile) -> UploadFile:
                status_code=status.HTTP_403_FORBIDDEN
           )
      return file
-
-

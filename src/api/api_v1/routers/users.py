@@ -21,7 +21,7 @@ from src.core.security import (
      verify_password, 
      create_token
 )
-from src.api.utils import get_by_id_username, valide_file
+from src.api.utils import UsersGetBy, valide_file
 from src.db.bases import UserRepository
 from src.schemas import TokenSchema
 from src.api.dependencies import request_user_token
@@ -112,24 +112,24 @@ async def get_user(
      user_id: str = Query(default=None),
      username: str = Query(default=None),
 ) -> UserSchema:
-     get_by = await get_by_id_username(
+     get_by = UsersGetBy().get_by(
           request_user_id=request_user.id,
           id=user_id,
           username=username
      )
-     value = f"user:{list(get_by.values())[0]}"
-     cached_user: str = await RedisPool().get(value)
+
+     cached_user: str = await RedisPool().get(get_by.data_value)
      if cached_user:
           return UserSchema.convert_from_redis(cached_user)
      
-     get_user = await UserRepository().read(**get_by)
+     get_user = await UserRepository().read(**get_by.data)
      if get_user is None:
           raise HTTPException(
                detail="User not found!",
                status_code=status.HTTP_404_NOT_FOUND
           )
      await RedisPool().set(
-          name=value,
+          name=get_by.data_value,
           value=get_user.copy().convert_to_redis(),
           ex=110
      )
