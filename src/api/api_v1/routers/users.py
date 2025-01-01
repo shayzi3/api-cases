@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Annotated, Any
+from typing import Annotated
 from fastapi import (
      APIRouter, 
      Depends, 
@@ -15,17 +15,20 @@ from src.schemas import (
      RegisterUser,
      LoginUserSchema,
      ResponseModel,
-     TokenData
+     TokenData,
+     UserWithPassword
 )
 from src.core.security import (
      verify_password, 
      create_token
 )
+from src.core import settings
 from src.api.utils import UsersGetBy, valide_file
 from src.db.bases import UserRepository
 from src.schemas import TokenSchema
-from src.api.dependencies import request_user_token
+from src.api.dependencies import get_current_user
 from src.services.redis import RedisPool
+from src.services.storage3 import Storage3
 
 
 
@@ -46,11 +49,10 @@ async def signup(
                status_code=status.HTTP_403_FORBIDDEN,
                detail=f"User with nickname {data.username} already exists"
           )
-     userdata = RegisterUser(**data.__dict__)
-     await UserRepository().create(
-          **userdata.__dict__
-     )
-     token = await create_token(**userdata.__dict__)
+     userdata = RegisterUser(**data)
+     await UserRepository().create(**userdata)
+     
+     token = await create_token(**userdata)
      response.set_cookie(
           key="access_token", 
           value=token,
@@ -65,8 +67,7 @@ async def login(
      data: LoginUserSchema,
      response: Response
 ) -> TokenSchema:
-     user_not_exists: list[Any] = await UserRepository().read(
-          values=("password", "id", "username", "email", "is_verifed", "is_admin"),
+     user_not_exists: UserWithPassword = await UserRepository().read_with_password(
           username=data.username
      )
      if user_not_exists is None:
@@ -76,14 +77,14 @@ async def login(
           )
      psw = verify_password(
           password=data.password,
-          hashed_password=user_not_exists[0]
+          hashed_password=user_not_exists.password
      )
      if psw is False:
           raise HTTPException(
                detail="Invalid username or password!",
                status_code=status.HTTP_403_FORBIDDEN
           )
-     token = await create_token(*user_not_exists[1:])
+     token = await create_token(schema=user_not_exists)
      response.set_cookie(
           key="access_token",
           value=token,
@@ -96,7 +97,7 @@ async def login(
 @auth_router.delete("/out", response_model=ResponseModel)
 async def out(
      response: Response,
-     _: Annotated[TokenData, Depends(request_user_token)],
+     _: Annotated[TokenData, Depends(get_current_user)],
 ) -> ResponseModel:
      response.delete_cookie("access_token")
      return ResponseModel(
@@ -108,12 +109,12 @@ async def out(
 
 @auth_router.get("/", response_model=UserSchema)
 async def get_user(
-     request_user: Annotated[TokenData, Depends(request_user_token)],
+     current_user: Annotated[TokenData, Depends(get_current_user)],
      user_id: str = Query(default=None),
      username: str = Query(default=None),
 ) -> UserSchema:
      get_by = UsersGetBy().get_by(
-          request_user_id=request_user.id,
+          request_user_id=current_user.id,
           id=user_id,
           username=username
      )
@@ -139,12 +140,30 @@ async def get_user(
 
 @auth_router.patch("/avatar", response_model=ResponseModel)
 async def upload_avatar(
-     request_user: Annotated[TokenData, Depends(request_user_token)],
+     current_user: Annotated[TokenData, Depends(get_current_user)],
      avatar: Annotated[UploadFile, Depends(valide_file)]
 ) -> ResponseModel:
+     name = current_user.id + ".jpg"
+     await Storage3.upload_file(
+          file=avatar.file.read(),
+          name=name
+     )
      
-     # send to s3, get url to avatar, save in db
+     url_to_avatar = settings.s3_url + name
+     await UserRepository().update(
+          where={"id": current_user.id},
+          avatar=url_to_avatar
+     )
+     
      return ResponseModel(
           response="Avatar Uploaded", 
           status=status.HTTP_200_OK
      )
+     
+     
+@auth_router.patch("/change", response_model=ResponseModel)
+async def user_change(
+     current_user: Annotated[TokenData, Depends(get_current_user)],
+) -> ResponseModel:
+     
+     raise NotImplementedError

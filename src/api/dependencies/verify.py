@@ -7,7 +7,7 @@ from src.db.bases import UserRepository
 
 
 
-async def check_verifed(
+async def verify_current_user(
      token: Annotated[str, Body(embed=True)],
 ) -> TokenData:
      """Function check the validity of the token. 
@@ -21,9 +21,7 @@ async def check_verifed(
          TokenData
      """
      data = await verify_token(token)
-     
-     already_verifed = await UserRepository().read(id=data.id)
-     if already_verifed.is_verifed is True:
+     if data.is_verifed is True:
           raise HTTPException(
                detail="User already verifed!",
                status_code=status.HTTP_400_BAD_REQUEST

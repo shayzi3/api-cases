@@ -15,8 +15,8 @@ from src.schemas import (
      ItemBodyNullable
 )
 from src.api.dependencies import (
-     request_user_token,
-     req_user_is_admin
+     get_current_user,
+     current_user_is_admin
 )
 from src.api.utils import ItemsGetBy
 from src.db.bases import ItemRepository
@@ -29,7 +29,7 @@ items_router = APIRouter(prefix="/api/v1/item", tags=["Item"])
 
 @items_router.get(path='/', response_model=ItemSchema)
 async def get_item(
-     _: Annotated[TokenData, Depends(request_user_token)],
+     _: Annotated[TokenData, Depends(get_current_user)],
      item_id: str = Query(default=None),
      item_name: str = Query(default=None),
 ) -> ItemSchema:
@@ -55,7 +55,7 @@ async def get_item(
      
 @items_router.post(path='/', response_model=ItemBodyID, tags=["Admin"])
 async def create_item(
-     _: Annotated[TokenData, Depends(req_user_is_admin)],
+     _: Annotated[TokenData, Depends(current_user_is_admin)],
      item: ItemBody
 ) -> ItemBodyID:
      item_exists = await ItemRepository().read(
@@ -77,7 +77,7 @@ async def create_item(
 
 @items_router.patch(path='/', response_model=ResponseModel, tags=["Admin"])
 async def change_item(
-     _: Annotated[TokenData, Depends(req_user_is_admin)],
+     _: Annotated[TokenData, Depends(current_user_is_admin)],
      item_id: str,
      item: ItemBodyNullable
 ) -> ResponseModel:

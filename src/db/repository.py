@@ -7,10 +7,10 @@ from src.services.redis import RedisPool
 
 
 
-ModelSchema = TypeVar("ModelSchema")
+PydanticSchema = TypeVar("PydanticSchema")
 
 
-class Repository(ABC):
+class AbstractRepository(ABC):
      
      @abstractmethod
      async def create(values, **extras):
@@ -35,14 +35,14 @@ class Repository(ABC):
 
 
 
-class ORMRepository(Generic[ModelSchema], Repository, Session):
+class ORMRepository(Generic[PydanticSchema], AbstractRepository, Session):
      model: type | None = None
      
      async def create(
           self, 
           values: Sequence[str] = (),
           **extras
-     ) -> ModelSchema | list[Any]:
+     ) -> PydanticSchema | list[Any]:
           async with self.session.begin() as session:
                sttm = (
                     insert(self.model).
@@ -58,7 +58,7 @@ class ORMRepository(Generic[ModelSchema], Repository, Session):
           self, 
           values: Sequence[str] = (),
           **extras
-     ) -> ModelSchema | list[Any] | None:
+     ) -> PydanticSchema | list[Any] | None:
           """Read, get data from db
 
           Args:
@@ -85,6 +85,12 @@ class ORMRepository(Generic[ModelSchema], Repository, Session):
           redis_value: list[str] = [],
           **extras
      ) -> None:
+          """_summary_
+
+          Args:
+              where (dict[str, Any]): _description_
+              redis_value (list[str], optional): For . Defaults to [].
+          """
           async with self.session.begin() as session:
                sttm = update(self.model).filter_by(**where).values(**extras)
                await session.execute(sttm)

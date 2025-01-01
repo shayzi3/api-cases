@@ -1,11 +1,11 @@
 
 
-from .verify import check_verifed
-from .depend import request_user_token, req_user_is_admin
+from .verify import verify_current_user
+from .depend import get_current_user, current_user_is_admin
 
 
 __all__ = [
-     "check_verifed",
-     "request_user_token",
-     "req_user_is_admin"
+     "verify_current_user",
+     "get_current_user",
+     "current_user_is_admin"
 ]

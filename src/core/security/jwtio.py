@@ -1,3 +1,4 @@
+from typing import TypeVar
 from datetime import timedelta, datetime
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
@@ -6,13 +7,16 @@ from src.schemas import TokenSchema, TokenData
 from src.core import settings
 
 
-async def create_token(*args, **kwargs) -> TokenSchema:
-     if args:
-          kwargs["id"] = args[0]
-          kwargs["username"] = args[1]
-          kwargs["email"] = args[2]
-          kwargs["is_verifed"] = args[3]
-          kwargs["is_admin"] = args[4]
+PydanticSchema = TypeVar("PydanticSchema")
+
+
+async def create_token(schema: PydanticSchema | None = None, **kwargs) -> TokenSchema:
+     if schema:
+          kwargs["id"] = schema.id
+          kwargs["username"] = schema.username
+          kwargs["email"] = schema.email
+          kwargs["is_verifed"] = schema.is_verifed
+          kwargs["is_admin"] = schema.is_admin
           
      data = {
           "id": kwargs.get("id"),

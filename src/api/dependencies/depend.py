@@ -5,11 +5,11 @@ from src.core.security import verify_token
 
 
 
-async def request_user_token(request: Request) -> TokenData:
+async def get_current_user(request: Request) -> TokenData:
      return await verify_token(request.cookies.get("access_token"))
 
 
-async def req_user_is_admin(request: Request) -> TokenData:
+async def current_user_is_admin(request: Request) -> TokenData:
      user = await verify_token(request.cookies.get("access_token"))
      if user.is_admin is False:
           raise HTTPException(

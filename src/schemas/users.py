@@ -1,6 +1,7 @@
 import json
 
 from datetime import datetime
+from typing import Any
 from pydantic import BaseModel, field_validator, EmailStr
 from src.schemas.schema import ItemSchemaForUserCase
 
@@ -32,7 +33,12 @@ class UserSchema(BaseModel):
           data["created_at"] = datetime.utcfromtimestamp(data["created_at"])
           
           return UserSchema(**data)
-
+     
+     
+class UserWithPassword(UserSchema):
+     password: str
+     
+     
      
 class RegisterUserSchema(BaseModel):
      username: str
@@ -48,6 +54,9 @@ class RegisterUserSchema(BaseModel):
           if email_prefix != "mail.ru":
                raise ValueError("Email must be mail.ru")
           return email_str
+     
+     def __str__(self) -> dict[str, Any]:
+          return self.__dict__
      
      
      
@@ -65,6 +74,12 @@ class RegisterUser(RegisterUserSchema):
      @classmethod
      def password_hash(cls, psw: str):
           return hashed_password(psw)
+     
+     
+     def __str__(self) -> dict[str, Any]:
+          return self.__dict__
+     
+     
      
      
 class LoginUserSchema(BaseModel):
