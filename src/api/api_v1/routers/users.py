@@ -2,12 +2,13 @@ from datetime import datetime, timedelta
 from typing import Annotated
 from fastapi import (
      APIRouter, 
-     Depends, 
+     Depends,
      HTTPException,
      Query, 
      status, 
      Response,
-     UploadFile
+     UploadFile,
+     BackgroundTasks
 )
 from src.schemas import (
      UserSchema,
@@ -22,13 +23,16 @@ from src.core.security import (
      verify_password, 
      create_token
 )
-from src.core import settings
-from src.api.utils import UsersGetBy, valide_file
+from src.api.utils import (
+     UsersGetBy, 
+     valide_file, 
+     background_upload_avatar,
+     background_delete_avatar
+)
 from src.db.bases import UserRepository
 from src.schemas import TokenSchema
 from src.api.dependencies import get_current_user
 from src.services.redis import RedisPool
-from src.services.storage3 import Storage3
 
 
 
@@ -141,24 +145,43 @@ async def get_user(
 @auth_router.patch("/avatar", response_model=ResponseModel)
 async def upload_avatar(
      current_user: Annotated[TokenData, Depends(get_current_user)],
-     avatar: Annotated[UploadFile, Depends(valide_file)]
+     avatar: Annotated[UploadFile, Depends(valide_file)],
+     background_task: BackgroundTasks
 ) -> ResponseModel:
-     name = current_user.id + ".jpg"
-     await Storage3.upload_file(
+     filename = current_user.id + ".jpg"
+     
+     background_task.add_task(
+          background_upload_avatar,
           file=avatar.file.read(),
-          name=name
+          filename=filename,
+          user_id=current_user.id,
+          username=current_user.username
      )
-     
-     url_to_avatar = settings.s3_url + name
-     await UserRepository().update(
-          where={"id": current_user.id},
-          avatar=url_to_avatar
-     )
-     
      return ResponseModel(
           response="Avatar Uploaded", 
           status=status.HTTP_200_OK
      )
+     
+     
+     
+@auth_router.delete("/avatar", response_model=ResponseModel)
+async def delete_avatar(
+     current_user: Annotated[TokenData, Depends(get_current_user)],
+     background_task: BackgroundTasks
+) -> ResponseModel:
+     filename = current_user.id + ".jpg"
+     
+     background_task.add_task(
+          background_delete_avatar,
+          filename=filename,
+          user_id=current_user.id,
+          username=current_user.username
+     )
+     return ResponseModel(
+          response="Avatar Deleted",
+          status=status.HTTP_200_OK
+     )
+     
      
      
 @auth_router.patch("/change", response_model=ResponseModel)

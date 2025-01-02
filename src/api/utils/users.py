@@ -1,5 +1,10 @@
 from typing_extensions import Self, Any
-from fastapi import UploadFile, HTTPException, status
+from fastapi import HTTPException, status, UploadFile
+from loguru import logger
+
+from src.services.storage3 import Storage3
+from src.db.bases import UserRepository
+from src.core import settings
 
 
 
@@ -38,10 +43,50 @@ class UsersGetBy:
 
 
 
-async def valide_file(file: UploadFile) -> UploadFile:
+async def valide_file(file: UploadFile) -> UploadFile | None:
+     if not file:
+          return None
+     
      if file.filename.split(".")[-1] not in ["jpg", "png"]:
           raise HTTPException(
                detail="File must be jpg or png!",
                status_code=status.HTTP_403_FORBIDDEN
           )
      return file
+
+
+async def background_upload_avatar(
+     file: bytes,
+     filename: str,
+     user_id: str,
+     username: str
+) -> None:
+     url_avatar = settings.s3_url + filename
+     
+     await Storage3.upload_file(
+          file=file,
+          name=filename
+     )
+     await UserRepository().update(
+          where={"id": user_id},
+          redis_value=[f"user:{user_id}", f"user:{username}"],
+          avatar=url_avatar
+     )
+     
+     logger.info(f"SUCCESS UPLOAD AVATAR FOR {user_id}:{username}")
+     
+     
+async def background_delete_avatar(
+     filename: str,
+     user_id: str,
+     username: str
+) -> None:
+     await UserRepository().update(
+          where={"id": user_id},
+          redis_value=[f"user:{user_id}", f"user:{username}"],
+          avatar=None
+     )
+     await Storage3.delete_file(name=filename)
+     
+     logger.info(f"SUCCESS DELETE AVATAR FOR {user_id}:{username}")
+     

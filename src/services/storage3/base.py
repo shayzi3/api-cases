@@ -38,10 +38,14 @@ class Storage3:
                     Key=name,
                     Body=file
                )
-               
+              
      @classmethod
-     async def get_file(cls, name: str) -> Any:
-          return
+     async def delete_file(cls, name: str) -> None:
+          async with cls.get_client() as client:
+               await client.delete_object(
+                    Bucket=cls.bucket_name,
+                    Key=name
+               )
                
                
      
