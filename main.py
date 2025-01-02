@@ -4,7 +4,7 @@ from fastapi import FastAPI, status
 
 from src.schemas import ResponseModel
 from src.api.api_v1.routers import (
-     auth_router,
+     users_router,
      verify_router,
      items_router
 )
@@ -13,7 +13,7 @@ from src.api.api_v1.routers import (
 app = FastAPI(
      title='Case API'
 )
-app.include_router(auth_router)
+app.include_router(users_router)
 app.include_router(verify_router)
 app.include_router(items_router)
 

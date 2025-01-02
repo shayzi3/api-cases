@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 from typing import Annotated
 from fastapi import (
-     APIRouter, 
+     APIRouter,
+     Body, 
      Depends,
      HTTPException,
      Query, 
@@ -17,11 +18,13 @@ from src.schemas import (
      LoginUserSchema,
      ResponseModel,
      TokenData,
-     UserWithPassword
+     UserWithPassword,
+     UserBodyNullable
 )
 from src.core.security import (
      verify_password, 
-     create_token
+     create_token,
+     hashed_password
 )
 from src.api.utils import (
      UsersGetBy, 
@@ -36,11 +39,11 @@ from src.services.redis import RedisPool
 
 
 
-auth_router = APIRouter(prefix="/api/v1/user", tags=["User"])
+users_router = APIRouter(prefix="/api/v1/user", tags=["User"])
 
 
 
-@auth_router.post("/signup", response_model=TokenSchema)
+@users_router.post("/signup", response_model=TokenSchema)
 async def signup(
      data: RegisterUserSchema,
      response: Response
@@ -65,13 +68,13 @@ async def signup(
      return token
      
      
-     
-@auth_router.post("/login", response_model=TokenSchema)
+
+@users_router.post("/login", response_model=TokenSchema)
 async def login(
      data: LoginUserSchema,
      response: Response
 ) -> TokenSchema:
-     user_not_exists: UserWithPassword = await UserRepository().read_with_password(
+     user_not_exists = await UserRepository().read_with_password(
           username=data.username
      )
      if user_not_exists is None:
@@ -98,7 +101,7 @@ async def login(
      
 
 
-@auth_router.delete("/out", response_model=ResponseModel)
+@users_router.delete("/out", response_model=ResponseModel)
 async def out(
      response: Response,
      _: Annotated[TokenData, Depends(get_current_user)],
@@ -111,7 +114,7 @@ async def out(
      
    
 
-@auth_router.get("/", response_model=UserSchema)
+@users_router.get("/", response_model=UserSchema)
 async def get_user(
      current_user: Annotated[TokenData, Depends(get_current_user)],
      user_id: str = Query(default=None),
@@ -142,7 +145,7 @@ async def get_user(
 
 
 
-@auth_router.patch("/avatar", response_model=ResponseModel)
+@users_router.patch("/avatar", response_model=ResponseModel)
 async def upload_avatar(
      current_user: Annotated[TokenData, Depends(get_current_user)],
      avatar: Annotated[UploadFile, Depends(valide_file)],
@@ -155,7 +158,7 @@ async def upload_avatar(
           file=avatar.file.read(),
           filename=filename,
           user_id=current_user.id,
-          username=current_user.username
+          redis_values=current_user.redis_values
      )
      return ResponseModel(
           response="Avatar Uploaded", 
@@ -164,7 +167,7 @@ async def upload_avatar(
      
      
      
-@auth_router.delete("/avatar", response_model=ResponseModel)
+@users_router.delete("/avatar", response_model=ResponseModel)
 async def delete_avatar(
      current_user: Annotated[TokenData, Depends(get_current_user)],
      background_task: BackgroundTasks
@@ -175,7 +178,7 @@ async def delete_avatar(
           background_delete_avatar,
           filename=filename,
           user_id=current_user.id,
-          username=current_user.username
+          redis_values=current_user.redis_values
      )
      return ResponseModel(
           response="Avatar Deleted",
@@ -184,9 +187,48 @@ async def delete_avatar(
      
      
      
-@auth_router.patch("/change", response_model=ResponseModel)
+@users_router.patch("/", response_model=ResponseModel)
 async def user_change(
      current_user: Annotated[TokenData, Depends(get_current_user)],
+     data: UserBodyNullable
 ) -> ResponseModel:
+     await UserRepository().update(
+          where={"id": current_user.id},
+          redis_value=current_user.redis_values,
+          **data.not_nullable
+     )
+     return ResponseModel(
+          response="User Updated",
+          status=status.HTTP_200_OK
+     )
      
-     raise NotImplementedError
+     
+@users_router.patch("/password", response_model=ResponseModel)
+async def user_change_password(
+     current_user: Annotated[TokenData, Depends(get_current_user)],
+     old_password: Annotated[str, Body(embed=True)],
+     new_password: Annotated[str, Body(embed=True)]
+) -> ResponseModel:
+     user_password = await UserRepository().read_with_password(
+          id=current_user.id
+     )
+     
+     psw = verify_password(
+          password=old_password,
+          hashed_password=user_password.password
+     )
+     if psw is False:
+          raise HTTPException(
+               detail="Invalid password!",
+               status_code=status.HTTP_403_FORBIDDEN
+          )
+          
+     await UserRepository().update(
+          where={"id": current_user.id},
+          redis_value=current_user.redis_values,
+          password=hashed_password(new_password)
+     )
+     return ResponseModel(
+          response="Password Change",
+          status=status.HTTP_200_OK
+     )

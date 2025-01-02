@@ -23,9 +23,9 @@ class ItemBodyNullable(BaseModel):
      # For patch endpoint /api/v1/items
      model_config = ConfigDict(use_enum_values=True)
      
-     name: Optional[str] = Field(default="Null")
-     price: Optional[int] = Field(default="Null")
-     quality: Optional[Quality] = Field(
+     name: str = Field(default="Null")
+     price: int = Field(default="Null")
+     quality: Quality = Field(
           default=Quality.NULL, validate_default=True
      )
      
@@ -57,3 +57,9 @@ class ItemSchema(ItemSchemaForUserCase):
      def convert_from_redis(data: str) -> "ItemSchema":
           new_data: dict = json.loads(data)
           return ItemSchema(**new_data)
+     
+     
+     @property
+     def redis_values(self) -> list[str]:
+          """Return: [item:id, item:username]"""
+          return [f"item:{self.id}", f"item:{self.name}"]

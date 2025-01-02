@@ -59,7 +59,7 @@ async def background_upload_avatar(
      file: bytes,
      filename: str,
      user_id: str,
-     username: str
+     redis_values: list[str]
 ) -> None:
      url_avatar = settings.s3_url + filename
      
@@ -69,24 +69,24 @@ async def background_upload_avatar(
      )
      await UserRepository().update(
           where={"id": user_id},
-          redis_value=[f"user:{user_id}", f"user:{username}"],
+          redis_value=redis_values,
           avatar=url_avatar
      )
      
-     logger.info(f"SUCCESS UPLOAD AVATAR FOR {user_id}:{username}")
+     logger.info(f"SUCCESS UPLOAD AVATAR FOR {user_id}")
      
      
 async def background_delete_avatar(
      filename: str,
      user_id: str,
-     username: str
+     redis_values: list[str]
 ) -> None:
      await UserRepository().update(
           where={"id": user_id},
-          redis_value=[f"user:{user_id}", f"user:{username}"],
+          redis_value=redis_values,
           avatar=None
      )
      await Storage3.delete_file(name=filename)
      
-     logger.info(f"SUCCESS DELETE AVATAR FOR {user_id}:{username}")
+     logger.info(f"SUCCESS DELETE AVATAR FOR {user_id}")
      

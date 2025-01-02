@@ -11,6 +11,7 @@ from .users import (
      RegisterUserSchema,
      LoginUserSchema,
      UserWithPassword,
+     UserBodyNullable,
 )
 from .verify import VerifyData
 from .items import (
@@ -39,4 +40,5 @@ __all__ = [
      "Quality",
      "ItemBodyNullable",
      "UserWithPassword",
+     "UserBodyNullable",
 ]

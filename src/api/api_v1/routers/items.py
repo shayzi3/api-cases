@@ -88,10 +88,9 @@ async def change_item(
                detail="Item not found!"
           )
           
-     args = [f"item:{item_exists.id}", f"item:{item_exists.name}"]
      await ItemRepository().update(
           where={"id": item_id},
-          redis_value=args,
+          redis_value=item_exists.redis_values,
           **item.not_nullable
      )
      return ResponseModel(

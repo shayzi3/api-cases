@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import json
 
 from datetime import datetime
 from typing import Any
-from pydantic import BaseModel, field_validator, EmailStr
+from pydantic import BaseModel, Field, field_validator, EmailStr
 from src.schemas.schema import ItemSchemaForUserCase
 
 from src.core import generate_id
@@ -28,7 +30,7 @@ class UserSchema(BaseModel):
           return json.dumps(self.__dict__)
      
      @staticmethod
-     def convert_from_redis(data: str) -> "UserSchema":
+     def convert_from_redis(data: str) -> UserSchema:
           data: dict = json.loads(data)
           data["created_at"] = datetime.utcfromtimestamp(data["created_at"])
           
@@ -55,6 +57,7 @@ class RegisterUserSchema(BaseModel):
                raise ValueError("Email must be mail.ru")
           return email_str
      
+     
      def __str__(self) -> dict[str, Any]:
           return self.__dict__
      
@@ -80,8 +83,34 @@ class RegisterUser(RegisterUserSchema):
           return self.__dict__
      
      
-     
-     
 class LoginUserSchema(BaseModel):
      username: str
      password: str
+     
+     
+
+class UserBodyNullable(BaseModel):
+     username: str = Field(default="Null")
+     email: str = Field(default="Null")
+     
+     
+     @field_validator("email")
+     @classmethod
+     def validate_email(cls, email_str: str):
+          if email_str != "Null":
+               email_prefix = email_str.split("@")[-1]
+               
+               if email_prefix != "mail.ru":
+                    raise ValueError("Email must be mail.ru")
+          return email_str
+          
+          
+     @property
+     def not_nullable(self) -> dict[str, Any]:
+          arguments = {}
+          for key, value in self.model_dump().items():
+               if value != "Null":
+                    arguments[key] = value
+          return arguments
+     
+     

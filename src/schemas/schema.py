@@ -37,3 +37,8 @@ class TokenData(BaseModel):
      def verify(self) -> dict[str, Any]:
           self.is_verifed = True
           return self.__dict__
+     
+     @property
+     def redis_values(self) -> list[str]:
+          """Return: [user:id, user:username]"""
+          return [f"user:{self.id}", f"user:{self.username}"]
