@@ -58,10 +58,6 @@ class RegisterUserSchema(BaseModel):
           return email_str
      
      
-     def __str__(self) -> dict[str, Any]:
-          return self.__dict__
-     
-     
      
 class RegisterUser(RegisterUserSchema):
      id: str = generate_id()
@@ -77,10 +73,6 @@ class RegisterUser(RegisterUserSchema):
      @classmethod
      def password_hash(cls, psw: str):
           return hashed_password(psw)
-     
-     
-     def __str__(self) -> dict[str, Any]:
-          return self.__dict__
      
      
 class LoginUserSchema(BaseModel):

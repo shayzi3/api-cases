@@ -1,7 +1,6 @@
-
 from contextlib import asynccontextmanager
 from aiobotocore.session import get_session, AioBaseClient
-from typing import Any, AsyncGenerator
+from typing import AsyncGenerator
 
 from src.core import settings
 
@@ -21,10 +20,10 @@ class Storage3:
           "endpoint_url": endpoint_url,
           "verify": False
      }
-      
      
-     @classmethod    
-     @asynccontextmanager 
+     
+     @classmethod
+     @asynccontextmanager
      async def get_client(cls) -> AsyncGenerator[AioBaseClient, None]:
           async with cls.session.create_client("s3", **cls.config) as client:
                yield client

@@ -18,13 +18,12 @@ from src.schemas import (
      LoginUserSchema,
      ResponseModel,
      TokenData,
-     UserWithPassword,
      UserBodyNullable
 )
 from src.core.security import (
-     verify_password, 
      create_token,
-     hashed_password
+     hashed_password,
+     verify_password
 )
 from src.api.utils import (
      UsersGetBy, 
@@ -56,10 +55,10 @@ async def signup(
                status_code=status.HTTP_403_FORBIDDEN,
                detail=f"User with nickname {data.username} already exists"
           )
-     userdata = RegisterUser(**data)
-     await UserRepository().create(**userdata)
+     userdata = RegisterUser(**data.__dict__)
+     await UserRepository().create(**userdata.__dict__)
      
-     token = await create_token(**userdata)
+     token = await create_token(userdata)
      response.set_cookie(
           key="access_token", 
           value=token,
@@ -74,24 +73,25 @@ async def login(
      data: LoginUserSchema,
      response: Response
 ) -> TokenSchema:
-     user_not_exists = await UserRepository().read_with_password(
+     error = HTTPException(
+          detail=f"Invalid username or password!",
+          status_code=status.HTTP_403_FORBIDDEN
+     )
+     
+     user = await UserRepository().read_with_password(
           username=data.username
      )
-     if user_not_exists is None:
-          raise HTTPException(
-               detail=f"Invalid username or password!",
-               status_code=status.HTTP_403_FORBIDDEN
-          )
+     if user is False:
+          raise error
+     
      psw = verify_password(
           password=data.password,
-          hashed_password=user_not_exists.password
+          hashed_password=user.password
      )
      if psw is False:
-          raise HTTPException(
-               detail="Invalid username or password!",
-               status_code=status.HTTP_403_FORBIDDEN
-          )
-     token = await create_token(schema=user_not_exists)
+          raise error
+     
+     token = await create_token(user)
      response.set_cookie(
           key="access_token",
           value=token,
@@ -209,17 +209,13 @@ async def user_change_password(
      old_password: Annotated[str, Body(embed=True)],
      new_password: Annotated[str, Body(embed=True)]
 ) -> ResponseModel:
-     user_password = await UserRepository().read_with_password(
+     user_password = await UserRepository().check_user_password(
+          password=old_password,
           id=current_user.id
      )
-     
-     psw = verify_password(
-          password=old_password,
-          hashed_password=user_password.password
-     )
-     if psw is False:
+     if user_password is False:
           raise HTTPException(
-               detail="Invalid password!",
+               detail="Invalid password or user not exists!",
                status_code=status.HTTP_403_FORBIDDEN
           )
           
@@ -230,5 +226,33 @@ async def user_change_password(
      )
      return ResponseModel(
           response="Password Change",
+          status=status.HTTP_200_OK
+     )
+     
+     
+@users_router.delete("/", response_model=ResponseModel)
+async def user_delete(
+     current_user: Annotated[TokenData, Depends(get_current_user)],
+     password: Annotated[str, Body(embed=True)],
+     response: Response
+) -> ResponseModel:
+     user_password = await UserRepository().check_user_password(
+          password=password,
+          id=current_user.id
+     )
+     if user_password is False:
+          raise HTTPException(
+               detail="Invalid password or user not exists!",
+               status_code=status.HTTP_403_FORBIDDEN
+          )
+          
+     await UserRepository().delete(
+          where={"id": current_user.id},
+          redis_value=current_user.redis_values
+     )
+     response.delete_cookie("access_token")
+     
+     return ResponseModel(
+          response="Success delete",
           status=status.HTTP_200_OK
      )

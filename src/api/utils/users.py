@@ -43,10 +43,7 @@ class UsersGetBy:
 
 
 
-async def valide_file(file: UploadFile) -> UploadFile | None:
-     if not file:
-          return None
-     
+async def valide_file(file: UploadFile) -> UploadFile:
      if file.filename.split(".")[-1] not in ["jpg", "png"]:
           raise HTTPException(
                detail="File must be jpg or png!",
