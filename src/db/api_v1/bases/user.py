@@ -1,9 +1,9 @@
 from sqlalchemy import select
 
-from src.db.repository import ORMRepository
-from src.db.models import User
+from src.db.api_v1.repository import ORMRepository
+from src.db.api_v1.models import User
 from src.schemas.api_v1 import UserSchema, UserWithPassword
-from src.core.security import verify_password
+from src.core.api_v1.security import verify_password
 
 
 class UserRepository(ORMRepository[UserSchema]):

@@ -1,5 +1,5 @@
-from src.db.repository import ORMRepository
-from src.db.models import Item
+from src.db.api_v1.repository import ORMRepository
+from src.db.api_v1.models import Item
 from src.schemas.api_v1 import ItemSchema
 
 

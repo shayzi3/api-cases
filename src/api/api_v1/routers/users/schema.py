@@ -3,10 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 from pydantic import BaseModel, Field, field_validator, EmailStr
-from src.schemas.api_v1 import UserSchema
 
-from src.core import generate_id
-from src.core.security import hashed_password
+from src.core.api_v1 import generate_id
+from src.core.api_v1.security import hashed_password
      
      
      

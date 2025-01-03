@@ -1,7 +1,7 @@
 from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
-from src.core import generate_id
+from src.core.api_v1 import generate_id
 from .enum import Quality
 
 

@@ -2,7 +2,7 @@ from contextlib import asynccontextmanager
 from aiobotocore.session import get_session, AioBaseClient
 from typing import AsyncGenerator
 
-from src.core import settings
+from src.core.api_v1 import settings
 
 
 

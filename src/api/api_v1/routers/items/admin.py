@@ -5,12 +5,9 @@ from fastapi import (
      HTTPException,
      status,
 )
-from src.schemas.api_v1 import (
-     TokenData,
-     ResponseModel
-)
+from src.db.api_v1.bases import ItemRepository
+from src.schemas.api_v1 import TokenData, ResponseModel
 from src.api.api_v1.dependencies import current_user_is_admin
-from src.db.bases import ItemRepository
 
 from .schema import ItemBody, ItemBodyID, ItemBodyNullable
 

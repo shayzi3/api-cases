@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from jose import jwt, JWTError
 
 from src.schemas.api_v1 import TokenSchema, TokenData
-from src.core import settings
+from src.core.api_v1 import settings
 
 
 PydanticSchema = TypeVar("PydanticSchema")

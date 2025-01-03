@@ -3,7 +3,7 @@ import random
 
 from email.mime.text import MIMEText
 from loguru import logger
-from src.core import settings
+from src.core.api_v1 import settings
 from src.services.redis import RedisPool
 
 

@@ -1,10 +1,9 @@
 from typing_extensions import Self, Any
-from fastapi import HTTPException, status, UploadFile
 from loguru import logger
 
 from src.services.storage3 import Storage3
-from src.db.bases import UserRepository
-from src.core import settings
+from src.db.api_v1.bases import UserRepository
+from src.core.api_v1 import settings
 
 
 
@@ -40,16 +39,6 @@ class UsersGetBy:
      @property
      def data(self) -> dict[str, Any]:
           return self.__data
-
-
-
-async def valide_file(file: UploadFile) -> UploadFile:
-     if file.filename.split(".")[-1] not in ["jpg", "png"]:
-          raise HTTPException(
-               detail="File must be jpg or png!",
-               status_code=status.HTTP_403_FORBIDDEN
-          )
-     return file
 
 
 async def background_upload_avatar(

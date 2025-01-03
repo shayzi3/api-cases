@@ -6,13 +6,10 @@ from fastapi import (
      status,
      Query
 )
-from src.schemas.api_v1 import (
-     TokenData,
-     ItemSchema
-)
-from src.api.api_v1.dependencies import get_current_user
-from src.db.bases import ItemRepository
+from src.db.api_v1.bases import ItemRepository
 from src.services.redis import RedisPool
+from src.schemas.api_v1 import TokenData, ItemSchema
+from src.api.api_v1.dependencies import get_current_user
 
 from .util import ItemsGetBy
 

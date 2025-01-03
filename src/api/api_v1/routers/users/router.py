@@ -11,29 +11,34 @@ from fastapi import (
      UploadFile,
      BackgroundTasks
 )
-from .schema import (
-     UserSchema,
-     RegisterUserSchema,
-     RegisterUser,
-     LoginUserSchema,
-     UserBodyNullable
-)
-from src.schemas.api_v1 import TokenData, ResponseModel
-from src.core.security import (
+from src.core.api_v1.security import (
      create_token,
      hashed_password,
      verify_password
 )
+from src.schemas.api_v1 import (
+     TokenSchema, 
+     TokenData, 
+     ResponseModel, 
+     UserSchema
+)
+from src.db.api_v1.bases import UserRepository
+from src.services.redis import RedisPool
+from src.api.api_v1.dependencies import get_current_user
+
+
+from .schema import (
+     RegisterUserSchema,
+     RegisterUser,
+     LoginUserSchema,
+     UserBodyNullable,
+)
 from .util import (
      UsersGetBy, 
-     valide_file, 
      background_upload_avatar,
      background_delete_avatar
 )
-from src.db.bases import UserRepository
-from src.schemas.api_v1 import TokenSchema
-from src.api.api_v1.dependencies import get_current_user
-from src.services.redis import RedisPool
+from .depend import valide_file
 
 
 

@@ -2,7 +2,7 @@ from typing import Sequence, Any, TypeVar, Generic
 from abc import ABC, abstractmethod
 from sqlalchemy import delete, select, insert, update
 
-from src.db.models import Session
+from src.db.api_v1.models import Session
 from src.services.redis import RedisPool
 
 

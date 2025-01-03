@@ -1,7 +1,7 @@
 
 from fastapi import Request, HTTPException, status
 from src.schemas.api_v1 import TokenData
-from src.core.security import verify_token
+from src.core.api_v1.security import verify_token
 
 
 

@@ -10,8 +10,8 @@ from fastapi import (
 )
 from src.schemas.api_v1 import ResponseModel, TokenData
 from src.services import Email
-from src.db.bases import UserRepository
-from src.core.security import create_token
+from src.db.api_v1.bases import UserRepository
+from src.core.api_v1.security import create_token
 
 from .depend import verify_current_user
 
