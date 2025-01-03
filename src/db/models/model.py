@@ -5,7 +5,7 @@ from typing import Any
 from sqlalchemy import ForeignKey, func, Table, Column, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncAttrs
-from src.schemas import UserSchema, CaseSchema, ItemSchema
+from src.schemas.api_v1 import UserSchema, CaseSchema, ItemSchema
 
 
 
@@ -38,6 +38,7 @@ class User(Base):
      created_at: Mapped[datetime] = mapped_column(nullable=False, server_default=func.now())
      is_verifed: Mapped[bool] = mapped_column(nullable=False)
      is_admin: Mapped[bool] = mapped_column(nullable=False)
+     is_banned: Mapped[bool] = mapped_column(nullable=False, default=False)
      avatar: Mapped[str] = mapped_column(nullable=True)
      
      inventory: Mapped[list[Item]] = relationship(
@@ -59,6 +60,7 @@ class User(Base):
                is_verifed=model.is_verifed,
                is_admin=model.is_admin,
                inventory=model.inventory,
+               is_banned=model.is_banned,
                avatar=model.avatar
           )
           if args:

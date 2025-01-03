@@ -8,11 +8,12 @@ from fastapi import (
      HTTPException,
      Response
 )
-from src.schemas import ResponseModel, TokenData
+from src.schemas.api_v1 import ResponseModel, TokenData
 from src.services import Email
 from src.db.bases import UserRepository
-from src.api.dependencies import verify_current_user
 from src.core.security import create_token
+
+from .depend import verify_current_user
 
 
 verify_router = APIRouter(prefix="/api/v1/verify", tags=["Verify"])

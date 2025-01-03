@@ -1,44 +1,12 @@
 from __future__ import annotations
 
-import json
-
 from datetime import datetime
 from typing import Any
 from pydantic import BaseModel, Field, field_validator, EmailStr
-from src.schemas.schema import ItemSchemaForUserCase
+from src.schemas.api_v1 import UserSchema
 
 from src.core import generate_id
 from src.core.security import hashed_password
-
-
-
-
-class UserSchema(BaseModel):
-     id: str
-     username: str
-     email: str
-     cash: int
-     created_at: datetime
-     is_verifed: bool
-     is_admin: bool
-     inventory: list[ItemSchemaForUserCase]
-     avatar: str | None = None
-     
-     
-     def convert_to_redis(self) -> str:
-          self.created_at = self.created_at.timestamp() # json cant convert datetime type
-          return json.dumps(self.__dict__)
-     
-     @staticmethod
-     def convert_from_redis(data: str) -> UserSchema:
-          data: dict = json.loads(data)
-          data["created_at"] = datetime.utcfromtimestamp(data["created_at"])
-          
-          return UserSchema(**data)
-     
-     
-class UserWithPassword(UserSchema):
-     password: str
      
      
      

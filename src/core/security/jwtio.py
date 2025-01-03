@@ -3,7 +3,7 @@ from datetime import timedelta, datetime
 from fastapi import HTTPException, status
 from jose import jwt, JWTError
 
-from src.schemas import TokenSchema, TokenData
+from src.schemas.api_v1 import TokenSchema, TokenData
 from src.core import settings
 
 
@@ -17,6 +17,7 @@ async def create_token(schema: PydanticSchema | None = None, **kwargs) -> TokenS
           kwargs["email"] = schema.email
           kwargs["is_verifed"] = schema.is_verifed
           kwargs["is_admin"] = schema.is_admin
+          kwargs["is_banned"] = schema.is_banned
           
      data = {
           "id": kwargs.get("id"),
@@ -24,6 +25,7 @@ async def create_token(schema: PydanticSchema | None = None, **kwargs) -> TokenS
           "email": kwargs.get("email"),
           "is_verifed": kwargs.get("is_verifed"),
           "is_admin": kwargs.get("is_admin"),
+          "is_banned": kwargs.get("is_banned"),
           "exp": datetime.utcnow() + timedelta(minutes=60),
           "iat": datetime.utcnow()
      }

@@ -1,10 +1,7 @@
-
 from typing import Annotated
 from fastapi import status, Body, HTTPException
 from src.core.security import verify_token
-from src.schemas import TokenData
-from src.db.bases import UserRepository
-
+from src.schemas.api_v1 import TokenData
 
 
 async def verify_current_user(

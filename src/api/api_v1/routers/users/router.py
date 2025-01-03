@@ -11,29 +11,28 @@ from fastapi import (
      UploadFile,
      BackgroundTasks
 )
-from src.schemas import (
+from .schema import (
      UserSchema,
      RegisterUserSchema,
      RegisterUser,
      LoginUserSchema,
-     ResponseModel,
-     TokenData,
      UserBodyNullable
 )
+from src.schemas.api_v1 import TokenData, ResponseModel
 from src.core.security import (
      create_token,
      hashed_password,
      verify_password
 )
-from src.api.utils import (
+from .util import (
      UsersGetBy, 
      valide_file, 
      background_upload_avatar,
      background_delete_avatar
 )
 from src.db.bases import UserRepository
-from src.schemas import TokenSchema
-from src.api.dependencies import get_current_user
+from src.schemas.api_v1 import TokenSchema
+from src.api.api_v1.dependencies import get_current_user
 from src.services.redis import RedisPool
 
 
@@ -229,7 +228,7 @@ async def user_change_password(
           status=status.HTTP_200_OK
      )
      
-     
+
 @users_router.delete("/", response_model=ResponseModel)
 async def user_delete(
      current_user: Annotated[TokenData, Depends(get_current_user)],

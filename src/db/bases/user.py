@@ -2,7 +2,7 @@ from sqlalchemy import select
 
 from src.db.repository import ORMRepository
 from src.db.models import User
-from src.schemas import UserSchema, UserWithPassword
+from src.schemas.api_v1 import UserSchema, UserWithPassword
 from src.core.security import verify_password
 
 
